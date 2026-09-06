@@ -15,9 +15,15 @@
     "ground_truth",
     "future_attack",
     "future_class",
-    "future_label"
+    "future_label",
+    "y_present_15min",
+    "y_present_30min",
+    "y_present_5min"
   ],
-  "directions": ["IN", "OUT"],
+  "directions": [
+    "IN",
+    "OUT"
+  ],
   "vocabularies": {
     "protocols": {
       "source": "cic_ids_2017",
@@ -39,27 +45,133 @@
     }
   },
   "features_per_direction": [
-    {"name": "flow_count",         "type": "int32",   "transform": "log1p_then_standardize"},
-    {"name": "total_bytes",        "type": "int64",   "transform": "log1p_then_standardize"},
-    {"name": "total_packets",      "type": "int64",   "transform": "log1p_then_standardize"},
-    {"name": "byte_rate",          "type": "float32", "transform": "log1p_then_standardize", "derivation": "total_bytes / bin_size_seconds (read from configs/default.yaml)"},
-    {"name": "packet_rate",        "type": "float32", "transform": "log1p_then_standardize", "derivation": "total_packets / bin_size_seconds (read from configs/default.yaml)"},
-    {"name": "dur_mean",           "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "dur_std",            "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "dur_p99",            "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "iat_mean",           "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "iat_std",            "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "iat_max",            "type": "float32", "transform": "log1p_then_standardize"},
-    {"name": "unique_peer_ports",  "type": "int32",   "transform": "log1p_then_standardize"},
-    {"name": "unique_peer_ips",    "type": "int32",   "transform": "log1p_then_standardize"},
-    {"name": "pkt_size_mean",      "type": "float32", "transform": "log1p_then_standardize", "dataset_availability": ["cic_ids_2017"], "tier": 1},
-    {"name": "pkt_size_std",       "type": "float32", "transform": "log1p_then_standardize", "dataset_availability": ["cic_ids_2017"], "tier": 1},
-    {"name": "pkt_size_p99",       "type": "float32", "transform": "log1p_then_standardize", "dataset_availability": ["cic_ids_2017"], "tier": 1},
-    {"name": "fwd_bwd_pkt_ratio",  "type": "float32", "transform": "log1p_then_standardize", "dataset_availability": ["cic_ids_2017"], "tier": 1},
-    {"name": "small_pkt_frac",     "type": "float32", "transform": "log1p_then_standardize", "dataset_availability": ["cic_ids_2017"], "tier": 1},
-    {"name": "proto_hist",         "type": "int32_Vp", "transform": "row_normalize_then_standardize"},
-    {"name": "service_hist",       "type": "int32_Vs", "transform": "row_normalize_then_standardize"},
-    {"name": "state_hist",         "type": "int32_Vt", "transform": "row_normalize_then_standardize"}
+    {
+      "name": "flow_count",
+      "type": "int32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "total_bytes",
+      "type": "int64",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "total_packets",
+      "type": "int64",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "byte_rate",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "derivation": "total_bytes / bin_size_seconds (read from configs/default.yaml)"
+    },
+    {
+      "name": "packet_rate",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "derivation": "total_packets / bin_size_seconds (read from configs/default.yaml)"
+    },
+    {
+      "name": "dur_mean",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "dur_std",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "dur_p99",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "iat_mean",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "iat_std",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "iat_max",
+      "type": "float32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "unique_peer_ports",
+      "type": "int32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "unique_peer_ips",
+      "type": "int32",
+      "transform": "log1p_then_standardize"
+    },
+    {
+      "name": "pkt_size_mean",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "dataset_availability": [
+        "cic_ids_2017"
+      ],
+      "tier": 1
+    },
+    {
+      "name": "pkt_size_std",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "dataset_availability": [
+        "cic_ids_2017"
+      ],
+      "tier": 1
+    },
+    {
+      "name": "pkt_size_p99",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "dataset_availability": [
+        "cic_ids_2017"
+      ],
+      "tier": 1
+    },
+    {
+      "name": "fwd_bwd_pkt_ratio",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "dataset_availability": [
+        "cic_ids_2017"
+      ],
+      "tier": 1
+    },
+    {
+      "name": "small_pkt_frac",
+      "type": "float32",
+      "transform": "log1p_then_standardize",
+      "dataset_availability": [
+        "cic_ids_2017"
+      ],
+      "tier": 1
+    },
+    {
+      "name": "proto_hist",
+      "type": "int32_Vp",
+      "transform": "row_normalize_then_standardize"
+    },
+    {
+      "name": "service_hist",
+      "type": "int32_Vs",
+      "transform": "row_normalize_then_standardize"
+    },
+    {
+      "name": "state_hist",
+      "type": "int32_Vt",
+      "transform": "row_normalize_then_standardize"
+    }
   ],
   "derivation_rules": {
     "F_per_direction_fixed_scalars": 18,
@@ -74,14 +186,22 @@
   },
   "label_columns": {
     "attack_label": "TARGET ONLY — never an input",
-    "y_present":    "TARGET ONLY — never an input",
-    "y_onset":      "TARGET ONLY — never an input",
-    "y_class":      "TARGET ONLY — never an input"
+    "y_present": "TARGET ONLY — never an input",
+    "y_onset": "TARGET ONLY — never an input",
+    "y_class": "TARGET ONLY — never an input"
   },
   "class_definitions": {
     "total_classes_including_benign": 8,
     "BENIGN": 0,
-    "attack_classes": ["BRUTE_FORCE", "DOS", "WEB_ATTACK", "INFILTRATION", "PORTSCAN", "BOTNET", "HEARTBLEED"],
+    "attack_classes": [
+      "BRUTE_FORCE",
+      "DOS",
+      "WEB_ATTACK",
+      "INFILTRATION",
+      "PORTSCAN",
+      "BOTNET",
+      "HEARTBLEED"
+    ],
     "p_class_head_outputs": 7,
     "p_class_BENIGN_semantics": "implicit (all 7 sigmoids below threshold)"
   }

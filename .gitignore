@@ -17,6 +17,8 @@ venv/
 # data
 data/
 artifacts/
+# but allow the source package
+!src/data/
 
 # dashboard
 dashboard/node_modules/
