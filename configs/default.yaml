@@ -1,0 +1,90 @@
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  bin_size_seconds: 60
+  window_size_seconds: 720
+  sequence_length: 12
+  schema_path: configs/feature_schema.json
+
+splits:
+  train:
+    days: [mon, tue, wed_morning, wed_afternoon_post_dos]
+    time_ranges:
+      - [2017-07-03T09:00:00Z, 2017-07-03T17:00:00Z]
+      - [2017-07-04T09:00:00Z, 2017-07-04T17:00:00Z]
+      - [2017-07-05T09:00:00Z, 2017-07-05T11:23:00Z]
+      - [2017-07-05T15:32:00Z, 2017-07-05T17:00:00Z]
+  val:
+    days: [thu_morning]
+    time_ranges:
+      - [2017-07-06T09:00:00Z, 2017-07-06T10:42:00Z]
+  test:
+    days: [thu_afternoon, fri]
+    time_ranges:
+      - [2017-07-06T14:19:00Z, 2017-07-06T17:00:00Z]
+      - [2017-07-07T10:02:00Z, 2017-07-07T17:00:00Z]
+
+model:
+  per_bin_encoder:
+    layers: [F_entity, 128, 64]
+    dropout: 0.1
+  gru_window_encoder:
+    input_size: 64
+    hidden_size: 64
+    num_layers: 1
+  latent_transition_mlp:
+    layers: [64, 128, 64]
+    dropout: 0.0
+  rollout:
+    k_steps: [1, 3, 5]
+  heads:
+    onset:
+      trunk: [64, 32]
+      dropout: 0.2
+      output: 1
+    class_conditional:
+      trunk: [64, 32]
+      dropout: 0.2
+      output: 7
+    attack_present:
+      trunk: [64, 16]
+      output: 8
+
+training:
+  optimizer: adamw
+  learning_rate: 1.0e-3
+  weight_decay: 1.0e-4
+  batch_size: 64
+  epochs: 30
+  early_stopping_patience: 5
+  gradient_clip_norm: 1.0
+  scheduler: reduce_on_plateau
+  scheduler_factor: 0.5
+  scheduler_patience: 3
+  stratified_onset_sampling: true
+  class_weight_clip: [1, 50]
+  seeds: [0, 1, 2, 3, 4]
+  L_transition_weight: 0.1
+
+evaluation:
+  horizons_minutes: [1, 3, 5]
+  bootstrap_samples: 1000
+  ece_bins: 15
+  primary_metric: auprc_at_h5
+  secondary_metrics: [auroc, brier, ece, f1]
+
+hardware:
+  device: auto
+  precision: float32
+  num_workers: 4
+
+api:
+  host: 0.0.0.0
+  port: 8000
+  mode: live
+  latency_budget_p99_ms: 200
+
+demo:
+  replay_speed: 5
+  poll_interval_seconds: 60
+  traffic_light_thresholds_source: validation_p99_negatives
