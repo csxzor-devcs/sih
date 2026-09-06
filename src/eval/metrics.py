@@ -10,29 +10,57 @@ import numpy as np
 from sklearn.metrics import roc_auc_score, average_precision_score
 
 
-def auroc(y_true: np.ndarray, y_score: np.ndarray) -> float:
+def auroc(
+    y_true: np.ndarray,
+    y_score: np.ndarray,
+    multi_class: str | None = None,
+) -> float:
     """Compute the area under the ROC curve.
 
     Args:
-        y_true: Binary ground-truth labels (0/1).
-        y_score: Predicted scores or probabilities for the positive class.
+        y_true: Binary ground-truth labels (0/1) for the 1-D path; integer
+            class labels (0..K-1) for the multi-class path.
+        y_score: Predicted scores or probabilities for the positive class
+            (1-D) when multi_class is None; 2-D probability-like matrix
+            of shape (N, K) when multi_class is provided.
+        multi_class: If None (default), the 1-D binary behaviour is used.
+            If "ovr" or "ovo", forwards to sklearn's roc_auc_score for the
+            multi-class case.
 
     Returns:
         AUROC as a float in [0, 1].
     """
-    return float(roc_auc_score(y_true, y_score))
+    if multi_class is None:
+        return float(roc_auc_score(y_true, y_score))
+    return float(roc_auc_score(y_true, y_score, multi_class=multi_class))
 
 
-def auprc(y_true: np.ndarray, y_score: np.ndarray) -> float:
+def auprc(
+    y_true: np.ndarray,
+    y_score: np.ndarray,
+    multi_class: str | None = None,
+) -> float:
     """Compute the area under the precision-recall curve (average precision).
 
     Args:
-        y_true: Binary ground-truth labels (0/1).
-        y_score: Predicted scores or probabilities for the positive class.
+        y_true: Binary ground-truth labels (0/1) for the 1-D path; integer
+            class labels (0..K-1) for the multi-class path.
+        y_score: Predicted scores or probabilities for the positive class
+            (1-D) when multi_class is None; 2-D probability-like matrix
+            of shape (N, K) when multi_class is provided.
+        multi_class: If None (default), the 1-D binary behaviour is used.
+            If "ovr", the macro-averaged multi-class average precision is
+            computed via sklearn's average_precision_score (sklearn >= 1.3).
 
     Returns:
         AUPRC as a float in [0, 1].
     """
+    if multi_class is None:
+        return float(average_precision_score(y_true, y_score))
+    # multi_class="ovr" => macro-averaged multi-class average precision.
+    if multi_class == "ovr":
+        return float(average_precision_score(y_true, y_score, average="macro"))
+    # Fallback: forward to sklearn and let it decide.
     return float(average_precision_score(y_true, y_score))
 
 
