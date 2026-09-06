@@ -14,9 +14,13 @@ class GRUWindowEncoder(nn.Module):
         self.hidden = hidden
 
     def forward(self, e: torch.Tensor) -> torch.Tensor:
-        """e: [B, L, in_size] → z_0: [B, hidden]"""
-        _, h = self.gru(e)
-        return h.squeeze(0)  # [B, hidden]
+        """e: [B, L, in_size] → z_0: [B, hidden]
+
+        Returns the last layer's final hidden state, which is the standard
+        "summary" of a stacked GRU. Correct for any num_layers >= 1.
+        """
+        _, h = self.gru(e)  # h: [num_layers, B, hidden]
+        return h[-1]  # last layer's final state → [B, hidden]
 
 
 class LatentTransitionMLP(nn.Module):

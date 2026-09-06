@@ -5,11 +5,17 @@ import torch
 import torch.nn as nn
 
 
+def _validate_trunk(trunk: tuple[int, int]) -> None:
+    if not (isinstance(trunk, tuple) and len(trunk) == 2):
+        raise ValueError("trunk must be a 2-tuple (in_features, hidden), got " + repr(trunk))
+
+
 class OnsetHead(nn.Module):
     """Per-horizon onset head: scalar logit (sigmoid outside the loss)."""
 
     def __init__(self, trunk: tuple[int, int] = (64, 32), dropout: float = 0.2):
         super().__init__()
+        _validate_trunk(trunk)
         self.net = nn.Sequential(
             nn.Linear(trunk[0], trunk[1]),
             nn.ReLU(),
@@ -27,6 +33,7 @@ class ClassHead(nn.Module):
 
     def __init__(self, trunk: tuple[int, int] = (64, 32), dropout: float = 0.2, n: int = 7):
         super().__init__()
+        _validate_trunk(trunk)
         self.net = nn.Sequential(
             nn.Linear(trunk[0], trunk[1]),
             nn.ReLU(),
@@ -44,6 +51,7 @@ class PresentHead(nn.Module):
 
     def __init__(self, trunk: tuple[int, int] = (64, 16), n: int = 8):
         super().__init__()
+        _validate_trunk(trunk)
         self.net = nn.Sequential(
             nn.Linear(trunk[0], trunk[1]),
             nn.ReLU(),

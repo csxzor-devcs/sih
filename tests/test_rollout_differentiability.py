@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import torch
-import torch.nn as nn
 
 from src.config import F_entity, load_schema
 from src.model.encoder import PerBinEncoder
@@ -30,13 +29,13 @@ def test_gradient_flows_through_rollout_to_encoder():
 
     # Every parameter must have a non-None grad.
     for name, p in encoder.named_parameters():
-        assert p.grad is not None, f"encoder.{name} has no grad"
+        assert p.grad is not None, "encoder." + name + " has no grad"
     for name, p in gru.named_parameters():
-        assert p.grad is not None, f"gru.{name} has no grad"
+        assert p.grad is not None, "gru." + name + " has no grad"
     for name, p in transition.named_parameters():
-        assert p.grad is not None, f"transition.{name} has no grad"
+        assert p.grad is not None, "transition." + name + " has no grad"
     for name, p in head.named_parameters():
-        assert p.grad is not None, f"head.{name} has no grad"
+        assert p.grad is not None, "head." + name + " has no grad"
 
 
 def test_no_detach_in_rollout():
