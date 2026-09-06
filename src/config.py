@@ -84,3 +84,12 @@ def sequence_length(config: dict[str, Any]) -> int:
 
 def L_transition_weight(config: dict[str, Any]) -> float:
     return float(config["training"]["L_transition_weight"])
+
+
+def device_for(config: dict[str, Any]) -> "torch.device":
+    """Pick device from config + CUDA availability. NEVER assert CUDA."""
+    import torch
+    choice = config.get("hardware", {}).get("device", "auto")
+    if choice == "auto":
+        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    return torch.device(choice)
