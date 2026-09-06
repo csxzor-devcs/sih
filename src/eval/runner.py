@@ -85,9 +85,6 @@ def evaluate(
     """
     # Lazy torch import: src/eval/ is not in the torch allow-list.
     import torch
-    from torch.utils.data import DataLoader
-
-    del DataLoader  # referenced for typing/import side-effects; not used directly
 
     model.eval()
     k = model.k_steps[0]
