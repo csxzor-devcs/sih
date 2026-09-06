@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import pytest
 
+from src.data.cic_ids import CIC_LABEL_CANONICAL
 from src.data.preprocess import canonicalize_label, CANONICAL_LABELS, RAW_TO_CANONICAL
 
 
@@ -54,3 +55,8 @@ def test_raw_to_canonical_has_15_entries():
 
 def test_canonical_labels_match_8_class_definitions():
     assert CANONICAL_LABELS == CANONICAL_NAMES
+
+
+def test_cic_ids_label_mapping_matches_preprocess():
+    """cic_ids.CIC_LABEL_CANONICAL and preprocess.RAW_TO_CANONICAL must agree."""
+    assert CIC_LABEL_CANONICAL == RAW_TO_CANONICAL

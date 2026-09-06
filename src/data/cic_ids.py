@@ -5,26 +5,12 @@ from pathlib import Path
 
 import pandas as pd
 
-# 15 CIC-IDS-2017 raw labels -> 8 canonical (0=BENIGN, 1..7 attacks).
-# Kept here (not in preprocess.py) so the loader is self-contained; preprocess.py
-# re-exports the same mapping for canonicalize_label().
-CIC_LABEL_CANONICAL: dict[str, int] = {
-    "BENIGN": 0,
-    "DoS Hulk": 2,
-    "DDoS": 2,
-    "DoS GoldenEye": 2,
-    "DoS Slowloris": 2,
-    "DoS Slowhttptest": 2,
-    "Heartbleed": 7,
-    "PortScan": 5,
-    "Bot": 6,
-    "Infiltration": 4,
-    "FTP-Patator": 1,
-    "SSH-Patator": 1,
-    "Web Attack - Brute Force": 3,
-    "Web Attack - XSS": 3,
-    "Web Attack - Sql Injection": 3,
-}
+from src.data.preprocess import RAW_TO_CANONICAL
+
+# 15 CIC-IDS-2017 raw labels → 8 canonical (0=BENIGN, 1..7 attacks).
+# Re-exported under this name for the loader's public interface. Single source
+# of truth is `preprocess.RAW_TO_CANONICAL`.
+CIC_LABEL_CANONICAL: dict[str, int] = RAW_TO_CANONICAL
 
 
 def load_cic_ids_csv(path: Path) -> pd.DataFrame:
