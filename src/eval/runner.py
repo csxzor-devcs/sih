@@ -117,6 +117,24 @@ def evaluate(
     class_p_arr = np.concatenate(class_p_list)
     class_y_arr = np.concatenate(class_y_list)
 
+    # Per-label macro for the multi-label class head. class_y_arr is a
+    # [N, 7] 0/1 indicator matrix (multi-LABEL binary), not a [N] integer
+    # class label vector, so sklearn's multi_class="ovr" path is invalid
+    # here. We score each of the 7 columns as a 1-D binary problem and
+    # macro-average. Labels whose column is constant (all 0 or all 1) are
+    # skipped because roc_auc_score raises on degenerate targets.
+    class_aurocs: list[float] = []
+    class_auprcs: list[float] = []
+    for label_idx in range(class_y_arr.shape[1]):
+        y_col = class_y_arr[:, label_idx]
+        p_col = class_p_arr[:, label_idx]
+        if y_col.min() == y_col.max():
+            continue
+        class_aurocs.append(auroc(y_col, p_col))
+        class_auprcs.append(auprc(y_col, p_col))
+    class_auroc_macro = float(np.mean(class_aurocs)) if class_aurocs else float("nan")
+    class_auprc_macro = float(np.mean(class_auprcs)) if class_auprcs else float("nan")
+
     return {
         "onset_auroc": auroc(onset_y_arr, onset_p_arr),
         "onset_auprc": auprc(onset_y_arr, onset_p_arr),
@@ -124,8 +142,8 @@ def evaluate(
         "onset_ece": ece(onset_y_arr, onset_p_arr),
         "present_auroc_macro": auroc(present_y_arr, present_p_arr, multi_class="ovr"),
         "present_auprc_macro": auprc(present_y_arr, present_p_arr, multi_class="ovr"),
-        "class_auroc_macro": auroc(class_y_arr, class_p_arr, multi_class="ovr"),
-        "class_auprc_macro": auprc(class_y_arr, class_p_arr, multi_class="ovr"),
+        "class_auroc_macro": class_auroc_macro,
+        "class_auprc_macro": class_auprc_macro,
         "n": int(len(onset_y_arr)),
     }
 
