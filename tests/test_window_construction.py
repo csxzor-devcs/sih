@@ -46,11 +46,11 @@ def test_window_strides_by_one_bin():
     cfg = load_config()
     agg = make_aggregated(n_bins=24)
     windows = build_windows(agg, cfg)
-    # Adjacent windows for the same host must shift by exactly 1 bin.
-    by_host = {}
+    # Adjacent windows for the same (host, direction) must shift by exactly 1 bin.
+    by_key = {}
     for w in windows:
-        by_host.setdefault(w["host"], []).append(w["start_bin"])
-    for host, starts in by_host.items():
+        by_key.setdefault((w["host"], w["direction"]), []).append(w["start_bin"])
+    for key, starts in by_key.items():
         starts.sort()
         for a, b in zip(starts, starts[1:]):
             assert b - a == 1, f"Stride is {b - a} bins, expected 1"
