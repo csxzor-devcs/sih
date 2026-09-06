@@ -17,11 +17,21 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+from src.config import F_entity
 from src.data.scaler import apply_scaler
 from src.data.window import build_windows, targets_for_window
 
 DIRECTIONS = ("IN", "OUT")
 NUM_ATTACK_CLASSES = 7
+
+
+def collate(batch: list[Any]) -> Any:
+    """Collate a list of per-window samples into a batch.
+
+    Pads variable-length host lists and stacks tensors. Full implementation
+    lands in Task 9 once F_entity is wired up with histograms.
+    """
+    raise NotImplementedError  # TODO(impl): Task 9 — pad/stack per-sample dicts
 
 
 class WindowDataset(Dataset):
@@ -44,22 +54,39 @@ class WindowDataset(Dataset):
         self.include_future_windows = include_future_windows
         self.windows = build_windows(agg, config)
 
+        # Vocabulary sizes are read from the schema so F_entity is stable
+        # for downstream consumers (model config, tests). Task 9 will use
+        # this to wire up the per-bin encoder.
+        vocabs = schema["vocabularies"]
+        V_p = int(vocabs["protocols"]["max_size"])
+        V_s = int(vocabs["services"]["max_size"])
+        V_t = int(vocabs["tcp_states"]["max_size"])
+        self.F_entity: int = F_entity(schema, V_p, V_s, V_t)
+
         # Pre-compute targets for all windows
         self.targets: list[dict[str, Any]] = [
             targets_for_window(w, agg, config) for w in self.windows
         ]
 
-        # Pre-compute the scaled per-bin tensor per (host, direction)
-        # This is the [F_per_direction] vector for each (host, direction, bin).
-        # In this MVP we represent the per-bin features as a single row per
-        # (host, direction, bin) and look them up by index.
-        self.per_bin_index: dict[tuple[str, str, int], np.ndarray] = {}
+        # Per-(host, direction, bin) feature rows indexed for fast lookup by
+        # _build_window_tensor (Task 9). Stores a pd.Series per key; consumed
+        # by `_build_window_tensor` (Task 9).
+        self.per_bin_index: dict[tuple[str, str, int], pd.Series] = {}
         for _, row in agg.iterrows():
             key = (row["host"], row["direction"], int(row["bin"]))
             self.per_bin_index[key] = row  # store the raw row; scaler applied in __getitem__
 
     def __len__(self) -> int:
         return len(self.windows)
+
+    def __getitem__(self, idx: int) -> dict[str, Any]:
+        """Return one sample: X_t, X_t_plus_k, y_onset, y_class, y_present.
+
+        Full per-sample assembly lands in Task 9 once F_entity and histograms
+        are wired up. This stub exists so callers can rely on the Dataset
+        contract.
+        """
+        raise NotImplementedError  # TODO(impl): Task 9 — assemble per-sample tensors
 
     def _build_window_tensor(self, host: str, direction: str, start_bin: int) -> np.ndarray:
         """Return [L, F_entity] for the given (host, direction) starting at start_bin.
