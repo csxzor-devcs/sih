@@ -1,9 +1,7 @@
 """Dataset shape and contract test. Full implementation tested in Task 9."""
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
-import pytest
 
 from src.config import F_entity, F_per_direction, load_config, load_schema
 from src.data.dataset import DIRECTIONS, NUM_ATTACK_CLASSES, WindowDataset, collate
