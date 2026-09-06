@@ -20,7 +20,7 @@ def _to_baseline_output(preds_proba: np.ndarray, name: str) -> BaselineOutput:
 
 def baseline_logreg(X: np.ndarray, y_present: np.ndarray, num_classes_present: int) -> BaselineOutput:
     """Logistic regression on flattened window features."""
-    clf = LogisticRegression(max_iter=200, multi_class="multinomial")
+    clf = LogisticRegression(max_iter=200)
     clf.fit(X, y_present)
     proba = clf.predict_proba(X)
     # Pad to num_classes_present if some classes are missing
