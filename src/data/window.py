@@ -45,10 +45,8 @@ def _attack_classes_in_bin(agg: pd.DataFrame, host: str, direction: str, bin_idx
     """Return the set of attack classes present in (host, direction, bin).
 
     Looks up the per-flow canonical-class column on `agg` if it is present.
-    The column name is constructed at runtime so the static leakage scan
-    does not match the bare name in this source file.
     """
-    label_col = "attack" + "_" + "label"
+    label_col = "attack_label"
     if label_col not in agg.columns:
         return set()
     sel = agg[
