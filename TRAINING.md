@@ -216,7 +216,9 @@ If this step errors with "Unknown raw label", the CSV column names do not match 
 
 ---
 
-## 5. Train the primary model (5 seeds, GPU, ~3-5 hours total)
+## 5. Train the primary model (5 seeds, GPU, ~5-10 hours total)
+
+> **Before you start:** use the laptop's **original barrel-jack charger**, not a 65 W USB-C PD brick. The RTX 4060 downclocks to 60-70% boost on a weak charger and the run is 30-50% slower as a result. A 100+ W barrel plug is required for sustained 3+ hour training.
 
 ```powershell
 cd C:\work\sih
@@ -240,7 +242,7 @@ $env:PYTHONPATH = "."
 
 **Important notes:**
 
-- **Keep the laptop plugged in.** A full run is 3-5 hours.
+- **Keep the laptop plugged in with the original barrel-jack charger** (≥ 100 W). A full run is 5-10 hours. A 65 W USB-C PD brick makes the 4060 downclock and adds 30-50% to the wall time.
 - **Do not close the PowerShell window.** If you must step away, leave the window open and the laptop on. The for-loop runs sequentially so closing the window stops training.
 - **Watch the GPU in another window:**
   ```powershell
@@ -480,6 +482,14 @@ git config --global core.longpaths true
 **Q: My CSV filenames are slightly different from the list in section 3. Will it work?**
 A: Probably not. The loader in `src\data\aggregate.py` matches exact substrings. Rename your files to match the names in section 3 verbatim (case-insensitive is fine on Windows).
 
+**Q: Training is running but the per-epoch time is much longer than 2-4 min. What's wrong?**
+A: Three usual suspects, in order of likelihood:
+1. **The charger.** A 65 W USB-C PD brick makes the 4060 downclock to 60-70% boost. Use the original barrel-jack charger (≥ 100 W).
+2. **Thermal throttling.** The laptop is on a soft surface (bed, couch, lap) and the vents are partly blocked. Put it on a hard, flat surface.
+3. **The 4060 is not the active GPU.** Some laptops have a BIOS setting or an NVIDIA control panel setting to force integrated graphics for "battery life". Open NVIDIA Control Panel → Manage 3D Settings → Preferred graphics processor → High-performance NVIDIA processor. Then reboot.
+
+If none of those are it, capture the output of `nvidia-smi` and the per-epoch log and send it to csxzor.
+
 ---
 
 ## Cheat sheet (one-line per section)
@@ -510,7 +520,7 @@ pytest tests/ -m "not slow and not gpu" -q    # 108 passed
 $env:PYTHONPATH = "."
 python -m src.data.preprocess --raw data\raw --out artifacts\processed
 
-# 5. Train (3-5h) — disable sleep first
+# 5. Train (5-10h) — use original barrel-jack charger, disable sleep first
 powercfg /change standby-timeout-ac 0
 powercfg /change hibernate-timeout-ac 0
 0..4 | ForEach-Object { cmd /c "python scripts\train.py --config configs\default.yaml --seed $_ --epochs 30 --device cuda --out artifacts\checkpoints\seed_$_" }
