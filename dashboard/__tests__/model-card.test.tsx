@@ -1,17 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import ModelCardPage from "../app/(dashboard)/model-card/page";
 
 describe("ModelCardPage", () => {
-  it("renders the architecture section", () => {
-    render(<ModelCardPage />);
-    expect(screen.getByText(/Architecture/i)).toBeInTheDocument();
+  it("renders the architecture section", async () => {
+    await act(async () => { render(<>{await ModelCardPage()}</>); });
+    expect(await screen.findByText(/Architecture/i)).toBeInTheDocument();
   });
-  it("renders the metrics section", () => {
-    render(<ModelCardPage />);
-    expect(screen.getByText(/Metrics/i)).toBeInTheDocument();
+  it("renders the metrics section", async () => {
+    await act(async () => { render(<>{await ModelCardPage()}</>); });
+    expect(await screen.findByRole("heading", { name: /Metrics/i, level: 2 })).toBeInTheDocument();
   });
-  it("renders the limitations section", () => {
-    render(<ModelCardPage />);
-    expect(screen.getByText(/Limitations/i)).toBeInTheDocument();
+  it("renders the limitations section", async () => {
+    await act(async () => { render(<>{await ModelCardPage()}</>); });
+    expect(await screen.findByText(/Limitations/i)).toBeInTheDocument();
   });
 });
