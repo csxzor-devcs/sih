@@ -42,7 +42,7 @@ def main() -> None:
     p = Path(args.out)
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "w") as f:
-        json.dump(out, f, indent=2)
+        json.dump(out, f, indent=2, default=str)
     print(f"[ablate] wrote {p}")
 
 
