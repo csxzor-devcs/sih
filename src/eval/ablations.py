@@ -70,5 +70,26 @@ ABALATIONS.append(_entry(
     "Drop the 5 packet-derived features per direction. Per audit: separate ablation from V6 (histograms) so the contribution of packet features is independently measured.",
 ))
 
+ABALATIONS.append(_entry(
+    "V9_latent_dim_sweep",
+    "training",
+    {"latent_dim_values": [16, 32, 64, 128, 256]},
+    "Sweep the GRU hidden dim / latent dim. Expectation: underfitting at 16, overfitting at 256, sweet spot near 64.",
+))
+
+ABALATIONS.append(_entry(
+    "V2_no_per_bin_encoder",
+    "training",
+    {"use_per_bin_encoder": False},
+    "Use raw F_entity as the GRU input (no per-bin encoder). Expectation: AUROC drops ≥3 points.",
+))
+
+ABALATIONS.append(_entry(
+    "V5_scalar_features_only",
+    "training",
+    {"use_histograms": False, "use_packet_features": False},
+    "Keep only the 13 flow scalars per direction (no packet features, no histograms). Expectation: class_auroc drops sharply; onset still works because onset depends on flow-level signals.",
+))
+
 
 ABLATION_REGISTRY = {a["name"]: a for a in ABALATIONS}  # overwrite
