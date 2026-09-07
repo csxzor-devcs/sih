@@ -56,5 +56,19 @@ ABALATIONS.append(_entry(
     "Rollout 0 steps (no transition used at inference) vs. full rollout. Per §22: V8b checks whether the latent dynamics earns its keep on downstream forecasting.",
 ))
 
+ABALATIONS.append(_entry(
+    "V10_lambda_sweep",
+    "training",
+    {"lambda_values": [0.0, 0.05, 0.1, 0.5, 1.0]},
+    "Sweep the L_transition_weight to characterize the loss balance. Per audit: the chosen value λ=0.1 must be inside the sweep and supported by a short rationale.",
+))
 
-ABLATION_REGISTRY = {a["name"]: a for a in ABALATIONS}
+ABALATIONS.append(_entry(
+    "V11_packet_features_off",
+    "training",
+    {"use_packet_features": False},
+    "Drop the 5 packet-derived features per direction. Per audit: separate ablation from V6 (histograms) so the contribution of packet features is independently measured.",
+))
+
+
+ABLATION_REGISTRY = {a["name"]: a for a in ABALATIONS}  # overwrite
