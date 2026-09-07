@@ -8,7 +8,7 @@
 
 ## What you are doing, in one paragraph
 
-A teammate (csxzor) built a learned model that forecasts the onset and class of network attacks from passive traffic observations. The model is a GRU + latent-dynamics architecture; it is evaluated against classical ML and sequence-model baselines. The code is finished, but training the full 5-seed pipeline + 8 ablations on a CPU is too slow. We are using your laptop's RTX 4060 8 GB GPU to run the training in a few hours. At the end you will push the trained checkpoints and metrics back to GitHub for the teammate to use.
+A teammate (csxzor) built a learned model that forecasts the onset and class of network attacks from passive traffic observations. The model is a GRU + latent-dynamics architecture; it is evaluated against classical ML and sequence-model baselines. The code is finished, but training the full 5-seed pipeline + 8 ablations on a CPU is too slow. We are using your HP Omen 16 laptop's RTX 4060 8 GB GPU (140 W TGP) to run the training in a single overnight run. At the end you will push the trained checkpoints and metrics back to GitHub for the teammate to use.
 
 ---
 
@@ -216,9 +216,9 @@ If this step errors with "Unknown raw label", the CSV column names do not match 
 
 ---
 
-## 5. Train the primary model (5 seeds, GPU, ~5-10 hours total)
+## 5. Train the primary model (5 seeds, GPU, ~5-7.5 hours total)
 
-> **Before you start:** use the laptop's **original barrel-jack charger**, not a 65 W USB-C PD brick. The RTX 4060 downclocks to 60-70% boost on a weak charger and the run is 30-50% slower as a result. A 100+ W barrel plug is required for sustained 3+ hour training.
+> **Before you start:** use the laptop's **original 200+ W barrel-jack charger** (HP ships a 200 W or 230 W brick with the Omen 16). The RTX 4060 in this laptop has a 140 W TGP; a weaker USB-C PD brick downclocks it to 60-70% boost and the run is 30-50% slower. The OEM barrel plug is required for sustained 5+ hour training.
 
 ```powershell
 cd C:\work\sih
@@ -242,7 +242,8 @@ $env:PYTHONPATH = "."
 
 **Important notes:**
 
-- **Keep the laptop plugged in with the original barrel-jack charger** (≥ 100 W). A full run is 5-10 hours. A 65 W USB-C PD brick makes the 4060 downclock and adds 30-50% to the wall time.
+- **Keep the laptop plugged in with the original 200+ W barrel-jack charger** (HP ships a 200 W or 230 W brick with the Omen 16). A full run is 5-7.5 hours. A 65 W USB-C PD brick makes the 4060 downclock and adds 30-50% to the wall time.
+- **Set OMEN Gaming Hub to Performance mode.** Open the preinstalled OMEN Gaming Hub → Performance tab → choose **"Performance"** (not "Default" or "Comfort"). The Omen 16's 4060 is a 140 W TGP part; in Default mode the boost clock holds to ~1.8 GHz, and the per-epoch time stretches by 30-40%. The toggle survives reboot. If OMEN Gaming Hub is not installed, get it from the Microsoft Store.
 - **Do not close the PowerShell window.** If you must step away, leave the window open and the laptop on. The for-loop runs sequentially so closing the window stops training.
 - **Watch the GPU in another window:**
   ```powershell
@@ -483,10 +484,11 @@ git config --global core.longpaths true
 A: Probably not. The loader in `src\data\aggregate.py` matches exact substrings. Rename your files to match the names in section 3 verbatim (case-insensitive is fine on Windows).
 
 **Q: Training is running but the per-epoch time is much longer than 2-4 min. What's wrong?**
-A: Three usual suspects, in order of likelihood:
-1. **The charger.** A 65 W USB-C PD brick makes the 4060 downclock to 60-70% boost. Use the original barrel-jack charger (≥ 100 W).
-2. **Thermal throttling.** The laptop is on a soft surface (bed, couch, lap) and the vents are partly blocked. Put it on a hard, flat surface.
-3. **The 4060 is not the active GPU.** Some laptops have a BIOS setting or an NVIDIA control panel setting to force integrated graphics for "battery life". Open NVIDIA Control Panel → Manage 3D Settings → Preferred graphics processor → High-performance NVIDIA processor. Then reboot.
+A: Four usual suspects, in order of likelihood:
+1. **The charger.** A 65 W USB-C PD brick makes the 4060 downclock to 60-70% boost. Use the original 200 W or 230 W barrel-jack charger that shipped with the Omen 16.
+2. **OMEN Gaming Hub is in Default/Comfort mode, not Performance.** Open OMEN Gaming Hub → Performance → set to **Performance**. Without this the 4060 holds to ~1.8 GHz and the per-epoch time stretches by 30-40%.
+3. **Thermal throttling.** The laptop is on a soft surface (bed, couch, lap) and the vents are partly blocked. Put it on a hard, flat surface.
+4. **The 4060 is not the active GPU.** Some laptops have a BIOS setting or an NVIDIA control panel setting to force integrated graphics for "battery life". Open NVIDIA Control Panel → Manage 3D Settings → Preferred graphics processor → High-performance NVIDIA processor. Then reboot.
 
 If none of those are it, capture the output of `nvidia-smi` and the per-epoch log and send it to csxzor.
 
@@ -520,9 +522,10 @@ pytest tests/ -m "not slow and not gpu" -q    # 108 passed
 $env:PYTHONPATH = "."
 python -m src.data.preprocess --raw data\raw --out artifacts\processed
 
-# 5. Train (5-10h) — use original barrel-jack charger, disable sleep first
+# 5. Train (5-7.5h on 140 W 4060) — original 200 W charger, OMEN Performance mode, no sleep
 powercfg /change standby-timeout-ac 0
 powercfg /change hibernate-timeout-ac 0
+# Open OMEN Gaming Hub → Performance → "Performance" mode (do this once, survives reboot)
 0..4 | ForEach-Object { cmd /c "python scripts\train.py --config configs\default.yaml --seed $_ --epochs 30 --device cuda --out artifacts\checkpoints\seed_$_" }
 
 # 6. Eval
